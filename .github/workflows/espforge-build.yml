@@ -1,0 +1,46 @@
+name: ESPForge firmware build
+run-name: ESPForge build ${{ inputs.espforge_build_uuid || github.event.client_payload.espforge_build_uuid }}
+
+"on":
+  workflow_dispatch:
+    inputs:
+      espforge_build_uuid:
+        description: Unique ESPForge build identifier
+        required: true
+        type: string
+  repository_dispatch:
+    types: [espforge_build]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: espforge-${{ inputs.espforge_build_uuid || github.event.client_payload.espforge_build_uuid }}
+  cancel-in-progress: false
+
+jobs:
+  firmware:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
+        with:
+          persist-credentials: false
+          submodules: recursive
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.12"
+      - name: Install PlatformIO
+        run: pip install --disable-pip-version-check platformio==6.1.19
+      - name: Build firmware
+        run: pio run
+      - name: Collect binaries
+        run: |
+          mkdir -p firmware-output
+          find . -maxdepth 1 -type f -name "*.bin" -exec cp {} firmware-output/ \;
+          find .pio/build -type f -name "*.bin" -exec cp --parents {} firmware-output/ \;
+      - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        with:
+          name: espforge-firmware
+          path: firmware-output/
+          if-no-files-found: error
