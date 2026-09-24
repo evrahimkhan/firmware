@@ -38,7 +38,7 @@ jobs:
       - name: Install PlatformIO
         run: pip install --disable-pip-version-check platformio==6.1.19
       - name: Build firmware
-        run: pio run -e 'm5stack-cardputer'
+        run: pio run -e 'm5stack-sticks3'
       - name: Collect binaries
         run: |
           mkdir -p firmware-output
@@ -46,7 +46,7 @@ jobs:
           find .pio/build -type f -name "*.bin" -exec cp --parents {} firmware-output/ \;
       - name: Name firmware files for selected hardware
         env:
-          ESPFORGE_ARTIFACT_PREFIX: "M5stack-Cardputer"
+          ESPFORGE_ARTIFACT_PREFIX: "M5stack-Sticks3"
         run: |
           python - <<'PY'
           import os, pathlib, re
@@ -80,7 +80,7 @@ jobs:
         env:
           ESPFORGE_FRAMEWORK: "platformio"
           ESPFORGE_CHIP: "esp32"
-          ESPFORGE_CONFIG_DIGEST: "29a4c407fc8f58fd3f0e45a5a9514f35dfa238c118fec8eb151d8568f7e34a94"
+          ESPFORGE_CONFIG_DIGEST: "b447dd9e88775926f8666148f04d615c6dbd17f10a7c38a65cef803e8ead57f6"
           ESPFORGE_ANALYZER_VERSION: "targets-v12"
         run: |
           python - <<'PY'
